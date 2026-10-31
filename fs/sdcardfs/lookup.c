@@ -387,12 +387,12 @@ put_name:
 	sdcardfs_set_lower_path(dentry, &lower_path);
 
 	/*
-	 * Return a negative dentry rather than an error, so the VFS can
-	 * make it positive on create and stacked filesystems (fuse-bpf)
-	 * that look up through lookup_one_len2() get a usable dentry.
-	 * d_revalidate drops it once the lower dentry turns positive.
+	 * If the intent is to create a file, then don't return an error, so
+	 * the VFS will continue the process of making this negative dentry
+	 * into a positive one.
 	 */
-	err = 0;
+	if (flags & (LOOKUP_CREATE|LOOKUP_RENAME_TARGET))
+		err = 0;
 
 out:
 	if (err)
